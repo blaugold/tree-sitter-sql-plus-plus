@@ -1,0 +1,31 @@
+===
+SELECT *;
+===
+
+SELECT *;
+
+---
+
+(source_file
+  (select_statement
+    (SELECT)
+    (select_list
+      (select_result
+        (star_property)))))
+
+===
+SELECT * AS a;
+===
+
+SELECT * AS a;
+
+---
+
+(source_file
+  (select_statement
+    (SELECT)
+    (select_list
+      (select_result
+        (star_property)
+        (AS)
+        alias: (identifier)))))
