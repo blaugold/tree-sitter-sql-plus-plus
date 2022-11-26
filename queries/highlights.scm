@@ -1,6 +1,11 @@
+; Comments
+[
+  (single_line_comment)
+  (multi_line_comment)
+] @comment
+
 ; Punctuation
 [
-  "."
   ","
   ":"
   ";"
@@ -17,28 +22,14 @@
 ; Keywords
 [
   (AS)
-  (COLLATE)
-  (DIAC)
-  (FALSE)
-  (MISSING)
-  (NOCASE)
-  (NODIAC)
   (NOT)
-  (NOUNICODE)
-  (NULL)
   (SELECT)
-  (TRUE)
-  (UNICODE)
 ] @keyword
 
 ; Literals
+(null_literal) @keyword
+(missing_literal) @keyword
+(true_literal) @keyword
+(false_literal) @keyword
 (string_literal) @string
-(int_literal) @number
-(float_literal) @number
-
-; Properties
-[
-  (star_property)
-  (collection_alias_star_property)
-  (property_path)
-] @property
+(number_literal) @number

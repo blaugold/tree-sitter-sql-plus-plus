@@ -1,89 +1,88 @@
 ===============================================================================
-Array empty
+Single line comment (empty)
 ===============================================================================
 
-[]
+--
 
 ---
 
 (source_file
-  (select_list
-    (select_result
-      (array_literal))))
+  (single_line_comment))
 
 ===============================================================================
-Array with one element
+Single line comment (non-empty)
 ===============================================================================
 
-[null]
+-- ABC
 
 ---
 
 (source_file
-  (select_list
-    (select_result
-      (array_literal
+  (single_line_comment))
+
+===============================================================================
+Single line comment (at end of line)
+===============================================================================
+
+SELECT --
+null;
+
+---
+
+(source_file
+  (select_statement
+    (SELECT)
+    (single_line_comment)
+    (select_list
+      (select_result
         (null_literal)))))
 
 ===============================================================================
-Array with two elements
+Multi line comment (empty)
 ===============================================================================
 
-[null, null]
+/**/
 
 ---
 
 (source_file
-  (select_list
-    (select_result
-      (array_literal
-        (null_literal)
+  (multi_line_comment))
+
+===============================================================================
+Multi line comment (non-empty)
+===============================================================================
+
+/*abc*/
+
+---
+
+(source_file
+  (multi_line_comment))
+
+===============================================================================
+Multi line comment (with newline)
+===============================================================================
+
+/*
+*/
+
+---
+
+(source_file
+  (multi_line_comment))
+
+===============================================================================
+Multi line comment (inside statement)
+===============================================================================
+
+SELECT /**/ null;
+
+---
+
+(source_file
+  (select_statement
+    (SELECT)
+    (multi_line_comment)
+    (select_list
+      (select_result
         (null_literal)))))
-
-===============================================================================
-Dict empty
-===============================================================================
-
-{}
-
----
-
-(source_file
-  (select_list
-    (select_result
-      (dict_literal))))
-
-===============================================================================
-Dict with one entry
-===============================================================================
-
-{"a": null}
-
----
-
-(source_file
-  (select_list
-    (select_result
-      (dict_literal
-        (dict_entry
-          key:   (string_literal)
-          value: (null_literal))))))
-
-===============================================================================
-Dict with two entries
-===============================================================================
-
-{"a": null, "b": null}
-
----
-
-(source_file
-  (select_list
-    (select_result
-      (dict_literal
-        (dict_entry
-          key:   (string_literal)
-          value: (null_literal))
-        (dict_entry
-          key:   (string_literal)
-          value: (null_literal))))))

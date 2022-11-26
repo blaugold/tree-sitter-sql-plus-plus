@@ -1,12 +1,12 @@
-const collationKeywords = ['CASE', 'DIAC', 'UNICODE'].flatMap((keyword) => [
-  keyword,
-  `NO${keyword}`,
-])
+// const collationKeywords = ['CASE', 'DIAC', 'UNICODE'].flatMap((keyword) => [
+//   keyword,
+//   `NO${keyword}`,
+// ])
 
 // When uncommenting a keyword, also add it to the list of keywords in the
 // queries / highlights.scm.
 const keywords = [
-  ...collationKeywords,
+  // ...collationKeywords,
   // 'ALL',
   // 'AND',
   // 'ANY',
@@ -15,7 +15,7 @@ const keywords = [
   // 'BETWEEN',
   // 'BY',
   // 'CASE',
-  'COLLATE',
+  // 'COLLATE',
   // 'CROSS',
   // 'DESC',
   // 'DISTINCT',
@@ -23,7 +23,6 @@ const keywords = [
   // 'END',
   // 'EVERY',
   // 'EXISTS',
-  'FALSE',
   // 'FROM',
   // 'GROUP',
   // 'HAVING',
@@ -34,9 +33,7 @@ const keywords = [
   // 'LEFT',
   // 'LIKE',
   // 'LIMIT',
-  'MISSING',
   'NOT',
-  'NULL',
   // 'OFFSET',
   // 'ON',
   // 'OR',
@@ -46,7 +43,6 @@ const keywords = [
   'SELECT',
   // 'SOME',
   // 'THEN',
-  'TRUE',
   // 'VALUED',
   // 'WHEN',
   // 'WHERE',
@@ -54,116 +50,69 @@ const keywords = [
 
 module.exports = grammar({
   name: 'sql_plus_plus',
+  word: ($) => $.identifier,
+  extras: ($) => [/\s+/, $.single_line_comment, $.multi_line_comment],
+  supertypes: ($) => [$._expr, $._literal],
 
   rules: {
-    source_file: ($) => choice($._statement, $.select_list),
+    // A file may:
+    // - be empty.
+    // - contain a single select_list.
+    // - contain statements separated by semicolons.
+    source_file: ($) => choice($.select_list, repeat(seq($._statement, ';'))),
 
-    word: ($) => $.identifier,
-
-    // === Statements =========================================================
-
-    _statement: ($) => seq(choice($.select_statement), ';'),
-
-    select_statement: ($) => seq($.SELECT, $.select_list),
-
-    select_list: ($) => commaList($.select_result),
-
-    select_result: ($) =>
-      seq($._expression, optional(seq($.AS, field('alias', $.identifier)))),
-
-    // === Expressions ========================================================
-
-    _expression: ($) =>
-      choice(
-        $._literal,
-        $.array_literal,
-        $.dict_literal,
-        $.unary_op,
-        $.parameter,
-        $._property
-      ),
-
-    parameter: ($) => seq('$', $.identifier),
-
-    unary_op: ($) =>
-      prec(2, seq(choice($.unary_minus, $.unary_plus, $.NOT), $._expression)),
-
-    collate_suffix: ($) =>
-      seq($.COLLATE, choice($.collation, seq('(', repeat1($.collation), ')'))),
-
-    collation: ($) =>
-      choice(...collationKeywords.map((ruleName) => $[ruleName])),
-
-    // === Properties =========================================================
-
-    _property: ($) =>
-      choice(
-        $.star_property,
-        $.collection_alias_star_property,
-        $.property_path
-      ),
-
-    star_property: ($) => '*',
-
-    collection_alias_star_property: ($) =>
-      seq(collectionAlias($), token.immediate('.'), '*'),
-
-    property_path: ($) =>
-      seq(
-        propertyName($),
-        repeat(
-          choice(
-            seq(token.immediate('.'), propertyName($)),
-            seq(token.immediate('['), $.int_literal, ']')
-          )
-        )
-      ),
-
-    // === Compound Literals ==================================================
-
-    array_literal: ($) => seq('[', optional(commaList($._expression)), ']'),
-
-    dict_literal: ($) => seq('{', optional(commaList($.dict_entry)), '}'),
-
-    dict_entry: ($) =>
-      seq(field('key', $.string_literal), ':', field('value', $._expression)),
+    single_line_comment: ($) => /--.*/,
+    multi_line_comment: ($) => token(seq('/*', choice(/.*/, '\n'), '*/')),
 
     // === Literals ===========================================================
 
     _literal: ($) =>
       choice(
-        $.NULL,
-        $.MISSING,
-        $.TRUE,
-        $.FALSE,
-        $.int_literal,
-        $.float_literal,
-        $.string_literal
+        $.null_literal,
+        $.missing_literal,
+        $.true_literal,
+        $.false_literal,
+        $.number_literal,
+        $.string_literal,
+        $.array_literal,
+        $.dict_literal
       ),
 
-    int_literal: ($) => /-?\d+/,
-    float_literal: ($) =>
-      /-?((\.\d+)|(\d+(\.\d*)([Ee][-+]?\d+)?|(\d+([Ee][-+]?\d+))))/,
-    string_literal: ($) => choice(/'([^']|'')*'/, /"([^"]|"")*"/),
+    null_literal: keywordRule('NULL'),
+    missing_literal: keywordRule('MISSING'),
+    true_literal: keywordRule('TRUE'),
+    false_literal: keywordRule('FALSE'),
+    number_literal: ($) => /-?(\d|[1-9]\d+)(\.\d+)?([eE][-+]?\d+)?/,
+    string_literal: ($) => choice(...['"', "'"].map(quotedStringRegExp)),
+
+    array_literal: ($) => seq('[', optional(commaList($._expr)), ']'),
+    dict_literal: ($) => seq('{', optional(commaList($.dict_entry)), '}'),
+    dict_entry: ($) =>
+      seq(field('key', $.string_literal), ':', field('value', $._expr)),
 
     // === Identifiers & Keywords =============================================
 
-    identifier: ($) => choice(/[a-zA-Z_][a-zA-Z0-9_$]*/, /`([^`]|``)*`/),
-
-    unary_minus: ($) => '-',
-    unary_plus: ($) => '+',
+    identifier: ($) => token(choice(/[a-zA-Z_][a-zA-Z0-9_$]*/, /`([^`]|``)*`/)),
 
     ...keywordRules(keywords),
+
+    // === Expressions ========================================================
+
+    _expr: ($) => choice($._literal, $.parameter_expr, $.grouping_expr),
+
+    parameter_expr: ($) => seq('$', $.identifier),
+    grouping_expr: ($) => seq('(', $._expr, ')'),
+
+    // === Statements =========================================================
+
+    _statement: ($) => choice($.select_statement),
+
+    select_statement: ($) => seq($.SELECT, field('select_list', $.select_list)),
+    select_list: ($) => commaList($.select_result),
+    select_result: ($) =>
+      seq($._expr, optional(seq(optional($.AS), field('alias', $.identifier)))),
   },
 })
-
-function collectionAlias($) {
-  return $.identifier
-}
-
-function propertyName($) {
-  return $.identifier
-}
 
 function keywordRules(keywords) {
   const result = {}
@@ -183,6 +132,14 @@ function caseInsensitive(text) {
       .split('')
       .map((letter) => `[${letter}${letter.toLowerCase()}]`)
       .join('')
+  )
+}
+
+function quotedStringRegExp(quote) {
+  // This RegExp matches JSON encoded string literals but does not just allow double quotes but
+  // instead uses the provided quote character.
+  return RegExp(
+    `${quote}([^${quote}\\\\]|\\\\([${quote}\\\\/bfnrt]|u[da-fA-F]{4}))*${quote}`
   )
 }
 

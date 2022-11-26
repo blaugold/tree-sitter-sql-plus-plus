@@ -1,0 +1,12 @@
+null,
+-- <- keyword
+missing,
+-- <- keyword
+true,
+-- <- keyword
+false,
+-- <- keyword
+"",
+-- <- string
+0
+-- <- number
