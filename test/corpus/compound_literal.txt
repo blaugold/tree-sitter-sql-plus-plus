@@ -7,8 +7,8 @@ Array empty
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (array_literal))))
 
 ===============================================================================
@@ -20,8 +20,8 @@ Array with one element
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (array_literal
         (null_literal)))))
 
@@ -34,8 +34,8 @@ Array with two elements
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (array_literal
         (null_literal)
         (null_literal)))))
@@ -49,8 +49,8 @@ Dict empty
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (dict_literal))))
 
 ===============================================================================
@@ -62,9 +62,9 @@ Dict with one entry
 ---
 
 (source_file
-  (select_list
-    (select_result
-      (dict_literal
+  (projection
+    (result_expr
+      expr: (dict_literal
         (dict_entry
           key:   (string_literal)
           value: (null_literal))))))
@@ -78,9 +78,9 @@ Dict with two entries
 ---
 
 (source_file
-  (select_list
-    (select_result
-      (dict_literal
+  (projection
+    (result_expr
+      expr: (dict_literal
         (dict_entry
           key:   (string_literal)
           value: (null_literal))

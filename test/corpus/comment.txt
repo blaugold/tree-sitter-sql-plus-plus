@@ -31,11 +31,13 @@ null;
 
 (source_file
   (select_statement
-    (SELECT)
-    (single_line_comment)
-    (select_list
-      (select_result
-        (null_literal)))))
+    (select_expr
+      (select_clause
+        (SELECT)
+        (single_line_comment)
+        (projection
+          (result_expr
+            (null_literal)))))))
 
 ===============================================================================
 Multi line comment (empty)
@@ -81,8 +83,10 @@ SELECT /**/ null;
 
 (source_file
   (select_statement
-    (SELECT)
-    (multi_line_comment)
-    (select_list
-      (select_result
-        (null_literal)))))
+    (select_expr
+      (select_clause
+        (SELECT)
+        (multi_line_comment)
+        (projection
+          (result_expr
+            (null_literal)))))))

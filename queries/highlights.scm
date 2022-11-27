@@ -6,6 +6,7 @@
 
 ; Punctuation
 [
+  "."
   ","
   ":"
   ";"
@@ -21,9 +22,14 @@
 
 ; Keywords
 [
+  (ALL)
   (AS)
+  (DISTINCT)
+  (ELEMENT)
   (NOT)
+  (RAW)
   (SELECT)
+  (VALUE)
 ] @keyword
 
 ; Literals

@@ -4,9 +4,10 @@ SELECT
 --      ^ punctuation.delimiter
 --            ^ punctuation.delimiter
 --                        ^ punctuation.bracket
-    [],
+    [a.b],
 --  ^ punctuation.bracket
---   ^ punctuation.bracket
+--    ^ punctuation.delimiter
+--      ^ punctuation.bracket
     (true)
 --  ^ punctuation.bracket
 --       ^ punctuation.bracket

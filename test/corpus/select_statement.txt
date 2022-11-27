@@ -8,10 +8,12 @@ SELECT null;
 
 (source_file
   (select_statement
-    (SELECT)
-    select_list: (select_list
-      (select_result
-        (null_literal)))))
+    (select_expr
+      select: (select_clause
+        (SELECT)
+        projection: (projection
+          (result_expr
+            expr: (null_literal)))))))
 
 ===
 SELECT null AS a;
@@ -23,12 +25,14 @@ SELECT null AS a;
 
 (source_file
   (select_statement
-    (SELECT)
-    select_list: (select_list
-      (select_result
-        (null_literal)
-        (AS)
-        alias: (identifier)))))
+    (select_expr
+      select: (select_clause
+        (SELECT)
+        projection: (projection
+          (result_expr
+            expr: (null_literal)
+            (AS)
+            alias: (identifier)))))))
 
 ===
 SELECT null a;
@@ -40,8 +44,33 @@ SELECT null a;
 
 (source_file
   (select_statement
-    (SELECT)
-    select_list: (select_list
-      (select_result
-        (null_literal)
-        alias: (identifier)))))
+    (select_expr
+      select: (select_clause
+        (SELECT)
+        projection: (projection
+          (result_expr
+            expr: (null_literal)
+            alias: (identifier)))))))
+
+===
+SELECT *, a.*, a AS b;
+===
+
+SELECT *, a.*, a AS b;
+
+---
+
+(source_file
+  (select_statement
+    (select_expr
+      select: (select_clause
+        (SELECT)
+        projection: (projection
+          (star_expr)
+          (star_expr
+            path: (select_path_segment
+              identifier: (identifier)))
+          (result_expr
+            expr: (identifier)
+            (AS)
+            alias: (identifier)))))))

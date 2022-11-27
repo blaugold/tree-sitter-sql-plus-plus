@@ -1,0 +1,16 @@
+===============================================================================
+[a.`b`i]
+===============================================================================
+
+[a.`b`i]
+
+---
+
+(source_file
+  (projection
+    (result_expr
+      expr: (array_literal
+        (field_expr
+          expr: (identifier)
+          identifier: (identifier)
+          case_insensitive: (case_insensitive_suffix))))))

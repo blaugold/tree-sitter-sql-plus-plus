@@ -7,8 +7,8 @@ NULL
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (null_literal))))
 
 
@@ -21,8 +21,8 @@ null
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (null_literal))))
 
 ===============================================================================
@@ -34,8 +34,8 @@ MISSING
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (missing_literal))))
 
 
@@ -48,8 +48,8 @@ missing
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (missing_literal))))
 
 ===============================================================================
@@ -61,9 +61,9 @@ TRUE
 ---
 
 (source_file
-  (select_list
-    (select_result
-     (true_literal))))
+  (projection
+    (result_expr
+      (true_literal))))
 
 
 ===============================================================================
@@ -75,8 +75,8 @@ true
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (true_literal))))
 
 ===============================================================================
@@ -88,8 +88,8 @@ FALSE
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (false_literal))))
 
 
@@ -102,8 +102,8 @@ false
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (false_literal))))
 
 ===============================================================================
@@ -115,8 +115,8 @@ Integer
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -128,8 +128,8 @@ Integer with minus
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -141,8 +141,8 @@ Float
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -154,8 +154,8 @@ Float with minus
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -167,8 +167,8 @@ Float with exponent
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -180,8 +180,8 @@ Float without decimal with exponent
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (number_literal))))
 
 ===============================================================================
@@ -193,8 +193,8 @@ String with single quotes (empty)
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))
 
 ===============================================================================
@@ -206,8 +206,8 @@ String with single quotes
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))
 
 ===============================================================================
@@ -219,8 +219,8 @@ String with escaped single quotes
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))
 
 ===============================================================================
@@ -232,8 +232,8 @@ String with double quotes (empty)
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))
 
 ===============================================================================
@@ -245,8 +245,8 @@ String with double quotes
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))
 
 ===============================================================================
@@ -258,6 +258,6 @@ String with escaped double quotes
 ---
 
 (source_file
-  (select_list
-    (select_result
+  (projection
+    (result_expr
       (string_literal))))

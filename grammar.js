@@ -7,7 +7,7 @@
 // queries / highlights.scm.
 const keywords = [
   // ...collationKeywords,
-  // 'ALL',
+  'ALL',
   // 'AND',
   // 'ANY',
   'AS',
@@ -18,7 +18,8 @@ const keywords = [
   // 'COLLATE',
   // 'CROSS',
   // 'DESC',
-  // 'DISTINCT',
+  'DISTINCT',
+  'ELEMENT',
   // 'ELSE',
   // 'END',
   // 'EVERY',
@@ -39,10 +40,12 @@ const keywords = [
   // 'OR',
   // 'ORDER',
   // 'OUTER',
+  'RAW',
   // 'SATISFIES',
   'SELECT',
   // 'SOME',
   // 'THEN',
+  'VALUE',
   // 'VALUED',
   // 'WHEN',
   // 'WHERE',
@@ -51,15 +54,16 @@ const keywords = [
 module.exports = grammar({
   name: 'sql_plus_plus',
   word: ($) => $.identifier,
+  conflicts: ($) => [[$._expr, $.select_path_segment]],
   extras: ($) => [/\s+/, $.single_line_comment, $.multi_line_comment],
-  supertypes: ($) => [$._expr, $._literal],
+  supertypes: ($) => [$._literal, $._expr, $._statement],
 
   rules: {
     // A file may:
     // - be empty.
-    // - contain a single select_list.
+    // - contain a single projection.
     // - contain statements separated by semicolons.
-    source_file: ($) => choice($.select_list, repeat(seq($._statement, ';'))),
+    source_file: ($) => choice($.projection, repeat($._statement)),
 
     single_line_comment: ($) => /--.*/,
     multi_line_comment: ($) => token(seq('/*', choice(/.*/, '\n'), '*/')),
@@ -85,8 +89,8 @@ module.exports = grammar({
     number_literal: ($) => /-?(\d|[1-9]\d+)(\.\d+)?([eE][-+]?\d+)?/,
     string_literal: ($) => choice(...['"', "'"].map(quotedStringRegExp)),
 
-    array_literal: ($) => seq('[', optional(commaList($._expr)), ']'),
-    dict_literal: ($) => seq('{', optional(commaList($.dict_entry)), '}'),
+    array_literal: ($) => seq('[', optional(oneOrMoreList($._expr)), ']'),
+    dict_literal: ($) => seq('{', optional(oneOrMoreList($.dict_entry)), '}'),
     dict_entry: ($) =>
       seq(field('key', $.string_literal), ':', field('value', $._expr)),
 
@@ -98,19 +102,82 @@ module.exports = grammar({
 
     // === Expressions ========================================================
 
-    _expr: ($) => choice($._literal, $.parameter_expr, $.grouping_expr),
+    _expr: ($) =>
+      choice(
+        $.grouping_expr,
+        $._literal,
+        $.parameter_expr,
+        $.identifier,
+        $.field_expr,
+        $.element_expr,
+        $.slice_expr
+      ),
 
-    parameter_expr: ($) => seq('$', $.identifier),
     grouping_expr: ($) => seq('(', $._expr, ')'),
+    parameter_expr: ($) => seq('$', $.identifier),
+    field_expr: ($) =>
+      seq(
+        field('expr', $._expr),
+        '.',
+        seq(
+          choice(
+            field('identifier', $.identifier),
+            field('name', seq('[', $._expr, ']'))
+          ),
+          optional(field('case_insensitive', $.case_insensitive_suffix))
+        )
+      ),
+    case_insensitive_suffix: ($) => 'i',
+    element_expr: ($) =>
+      seq(field('expr', $._expr), '[', field('position', $._expr), ']'),
+    slice_expr: ($) =>
+      seq(
+        field('expr', $._expr),
+        '[',
+        field('start', $._expr),
+        ':',
+        optional(field('end', $._expr)),
+        ']'
+      ),
 
     // === Statements =========================================================
 
     _statement: ($) => choice($.select_statement),
 
-    select_statement: ($) => seq($.SELECT, field('select_list', $.select_list)),
-    select_list: ($) => commaList($.select_result),
-    select_result: ($) =>
-      seq($._expr, optional(seq(optional($.AS), field('alias', $.identifier)))),
+    select_statement: ($) => statement($.select_expr),
+    select_expr: ($) => seq(field('select', $.select_clause)),
+
+    // === SELECT Clause ======================================================
+
+    select_clause: ($) =>
+      seq(
+        $.SELECT,
+        // TODO: hint-comment,
+        field('projection', $.projection)
+      ),
+    projection: ($) =>
+      seq(
+        optional(field('return', choice($.ALL, $.DISTINCT))),
+        choice(
+          seq(oneOrMoreList(choice($.star_expr, $.result_expr))),
+          field('raw', seq(choice($.RAW, $.ELEMENT, $.VALUE), $.result_expr))
+        )
+      ),
+    star_expr: ($) =>
+      seq(optional(field('path', seq($.select_path_segment, '.'))), '*'),
+    select_path_segment: ($) =>
+      prec.right(
+        seq(
+          field('identifier', $.identifier),
+          repeat(seq('[', $._expr, ']')),
+          field('next', optional(seq('.', $.select_path_segment)))
+        )
+      ),
+    result_expr: ($) =>
+      seq(
+        field('expr', $._expr),
+        optional(seq(optional($.AS), field('alias', $.identifier)))
+      ),
   },
 })
 
@@ -143,6 +210,10 @@ function quotedStringRegExp(quote) {
   )
 }
 
-function commaList(rule) {
-  return seq(rule, repeat(seq(',', rule)))
+function oneOrMoreList(rule, separator = ',') {
+  return seq(rule, repeat(seq(separator, rule)))
+}
+
+function statement(rule) {
+  return seq(rule, ';')
 }
